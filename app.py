@@ -15,8 +15,17 @@ def get_video_info():
         return jsonify({'error': 'URL is required'}), 400
 
     try:
-        # Command to get video info as JSON, timeout after 90 seconds
-        command = ['yt-dlp', '--dump-json', '--no-playlist', url]
+        # THIS IS THE MODIFIED COMMAND BLOCK
+        # We are adding a user-agent to pretend we are a real browser
+        # and disabling certificate checks which can sometimes cause issues in cloud environments.
+        command = [
+            'yt-dlp',
+            '--no-check-certificate',
+            '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+            '--dump-json',
+            '--no-playlist',
+            url
+        ]
         
         # Execute the command. The 'check=True' will cause an error to be raised if yt-dlp fails.
         result = subprocess.run(
@@ -46,16 +55,11 @@ def get_video_info():
         }
         return jsonify(response_data)
 
-    # This is the new, detailed error-catching block
+    # We are keeping the detailed error reporting for now, just in case.
     except Exception as e:
-        # Default error message
         error_output = "No specific error output captured."
-        
-        # Check if the exception 'e' has the 'stderr' attribute, which contains the actual error from yt-dlp
         if hasattr(e, 'stderr') and e.stderr:
             error_output = e.stderr.strip()
-
-        # Return a JSON response with the detailed error for debugging
         return jsonify({'error': f"A technical error occurred. Details from server: [ {error_output} ]"}), 500
 
 # This special route is for our Uptime Pinger
