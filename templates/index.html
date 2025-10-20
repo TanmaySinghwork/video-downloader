@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Universal Video Downloader - Download Any Video Free</title>
+    <meta name="description" content="Free and fast video downloader. Paste any video link from YouTube, Instagram, Facebook, and more to download directly.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>body{background-color:#f8f9fa;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;}.container{max-width:800px;}.results-card{display:none;}.btn-primary{background-color:#0d6efd;border-color:#0d6efd;}.spinner-border{color:#0d6efd;}#error-alert{display:none;}</style>
+</head>
+<body>
+    <div class="container my-5 px-4">
+        <div class="text-center mb-4"><h1 class="fw-bold">Universal Video Downloader</h1><p class="lead text-muted">Paste any video link to download for free</p></div>
+        <div class="ad-space text-center my-3 p-3 bg-light border rounded">728x90 Ad Banner</div>
+        <div class="card shadow-sm p-4">
+            <div class="input-group mb-3"><input type="text" id="videoUrl" class="form-control form-control-lg" placeholder="https://www.youtube.com/watch?v=..."><button class="btn btn-primary btn-lg px-4" type="button" id="downloadBtn">Download</button></div>
+            <div id="loader" class="text-center" style="display:none;"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2">Fetching video info, please wait...</p></div>
+            <div class="alert alert-danger" id="error-alert"></div>
+        </div>
+        <div class="card shadow-sm mt-4 results-card" id="results">
+            <div class="card-body"><div class="row align-items-center"><div class="col-md-4 text-center"><img id="thumbnail" src="" class="img-fluid rounded mb-3 mb-md-0"></div><div class="col-md-8"><h5 id="videoTitle" class="fw-bold"></h5><p class="text-muted">Choose a format to download:</p><div id="formatList" class="list-group"></div></div></div></div>
+        </div>
+        <div class="ad-space text-center my-3 p-3 bg-light border rounded">300x250 Ad Block</div>
+    </div>
+    <script>const urlInput=document.getElementById("videoUrl"),downloadBtn=document.getElementById("downloadBtn"),loader=document.getElementById("loader"),resultsCard=document.getElementById("results"),errorAlert=document.getElementById("error-alert");downloadBtn.addEventListener("click",async()=>{const t=urlInput.value.trim();if(!t)return void showError("Please paste a video URL.");loader.style.display="block",resultsCard.style.display="none",errorAlert.style.display="none",downloadBtn.disabled=!0,downloadBtn.innerHTML="Fetching...";try{const e=await fetch("/api/get_video_info",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url:t})}),o=await e.json();if(!e.ok)throw new Error(o.error||"Something went wrong on the server.");displayResults(o)}catch(t){showError("Error: "+t.message)}finally{loader.style.display="none",downloadBtn.disabled=!1,downloadBtn.innerHTML="Download"}});function displayResults(t){document.getElementById("thumbnail").src=t.thumbnail,document.getElementById("videoTitle").textContent=t.title;const e=document.getElementById("formatList");if(e.innerHTML="",!t.formats||0===t.formats.length)e.innerHTML='<p class="text-danger">No downloadable formats found.</p>';else for(const o of t.formats){const n=o.filesize_approx?`(${(o.filesize_approx/1024/1024).toFixed(2)} MB)`:"",l=document.createElement("a");l.href=o.url,l.className="list-group-item list-group-item-action d-flex justify-content-between align-items-center",l.target="_blank",l.download=!0,l.innerHTML=`<span>${o.format_note} (${o.ext}) ${n}</span> <span class="badge bg-primary rounded-pill">Download</span>`,e.appendChild(l)}resultsCard.style.display="block"}function showError(t){errorAlert.textContent=t,errorAlert.style.display="block"}</script>
+</body>
+</html>
