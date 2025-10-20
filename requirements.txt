@@ -1,5 +1,5 @@
 # Force update 1
 Flask
 gunicorn
-yt-dlp
+yt-dlp @ git+https://github.com/yt-dlp/yt-dlp.git
 gevent
