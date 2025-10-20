@@ -16,10 +16,10 @@ def get_video_info():
 
     try:
         # THIS IS THE MODIFIED COMMAND BLOCK
-        # We are adding a user-agent to pretend we are a real browser
-        # and disabling certificate checks which can sometimes cause issues in cloud environments.
+        # We are now adding '--force-ipv6' to try a different connection route.
         command = [
             'yt-dlp',
+            '--force-ipv6',  # <-- NEW FLAG
             '--no-check-certificate',
             '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
             '--dump-json',
@@ -27,7 +27,6 @@ def get_video_info():
             url
         ]
         
-        # Execute the command. The 'check=True' will cause an error to be raised if yt-dlp fails.
         result = subprocess.run(
             command, 
             capture_output=True, 
@@ -55,18 +54,15 @@ def get_video_info():
         }
         return jsonify(response_data)
 
-    # We are keeping the detailed error reporting for now, just in case.
     except Exception as e:
         error_output = "No specific error output captured."
         if hasattr(e, 'stderr') and e.stderr:
             error_output = e.stderr.strip()
         return jsonify({'error': f"A technical error occurred. Details from server: [ {error_output} ]"}), 500
 
-# This special route is for our Uptime Pinger
 @app.route('/ping')
 def ping():
     return "pong", 200
 
-# This part is for running on your own PC, Render will use a different command
 if __name__ == '__main__':
     app.run(debug=True)
